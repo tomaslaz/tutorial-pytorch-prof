@@ -1,0 +1,5 @@
+*.out
+4_profile/profiler_output_*
+.venv
+.ipynb_checkpoints
+.DS_Store
