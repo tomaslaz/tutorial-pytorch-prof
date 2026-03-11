@@ -10,10 +10,19 @@ Repository with hands-on exercises of the Introduction to PyTorch Profiling tuto
 
 ## Prerequisites
 
+To install the latest version of Conda navigate to your home directory and run the following commands:
+
+```bash
+cd $HOME
+curl --location --remote-name "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh
+rm Miniforge3-$(uname)-$(uname -m).sh
+```
+
 Set up the conda environment:
 
 ```bash
-srun -N 1 --gpus 1 --pty conda env create -f pytorch_conda_env.yaml -y
+srun -N 1 --gpus 1 bash -c "source ~/miniforge3/bin/activate && conda env create -f pytorch_conda_env.yaml -y"
 ```
 
 ## Exercises
