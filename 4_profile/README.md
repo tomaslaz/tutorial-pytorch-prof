@@ -196,7 +196,7 @@ Once you a refinished with the analysis using the `analysis.ipynb` notebook, mov
 
 ## Part B: Memory allocation analysis
 
-The kernel timing trace (`profile_memory=False`) does not record allocator events, so Section 3a of the analysis notebook requires a separate run with `profile_memory=True`. The memory overhead flag adds CPU work around every op, so GPU kernel timings in this trace will be inflated — do not use it to judge kernel speed.
+The kernel timing trace (`profile_memory=False`) does not record allocator events and in order to capture a memory allocation timeline a separate run with `profile_memory=True` is needed. The memory overhead flag adds CPU work around every op, so GPU kernel timings in this trace will be inflated — do not use it to judge kernel speed.
 
 Start from your **Part A solution** and make three changes:
 

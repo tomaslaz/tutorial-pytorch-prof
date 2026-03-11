@@ -112,7 +112,7 @@ rsync -r <host>:~/<path>/5_nsight/nsight_output/ ./nsight_output/
 
 ### Step 6: Open in the Nsight Systems GUI *(run on your local machine)*
 
-Download Nsight Systems from [developer.nvidia.com/nsight-systems](https://developer.nvidia.com/nsight-systems) and open the `.nsys-rep` file. To compare multiple ranks side by side: **File → Add Report**.
+Download Nsight Systems from [developer.nvidia.com/nsight-systems](https://developer.nvidia.com/nsight-systems) and open the `.nsys-rep` file.
 
 To generate a text summary on the command line without the GUI, either on your local machine or on the HPC cluster (after loading the CUDA module):
 
@@ -150,7 +150,7 @@ Look at the **CUDA GPU Kernel Summary** (`cuda_gpu_kern_sum`) section and compar
 | Dominant kernels | `simt_sgemm`, `cutlass_80_simt_sgemm` | Confirms Exercise 4: FP32 GEMMs, Tensor Cores idle — no profiler artefact |
 | Step durations (steady-state) | ~575 ms at `BATCH_SIZE=320` | Should match Exercise 4's `span_ms` — validates that torch.profiler overhead was not distorting timings |
 | First step duration | Significantly longer | CUDA context init + first-step allocator warm-up — visible in nsys but hidden in Exercise 4 by the profiler `warmup` phase |
-| NVTX breakdown | `forward` ≈ 35%, `backward` ≈ 60%, `optimizer` small | Backward is ~2× forward, as expected; optimizer (Adam) overhead is negligible relative to compute |
+| NVTX breakdown | Compare relative time of `forward`, `backward`, and `optimizer` | How do the three phases compare? Is optimizer overhead negligible relative to compute? |
 | Kernel count vs Exercise 4 | Should match | If counts differ, Exercise 4's heavyweight flags (`profile_memory`, `with_stack`) were still inflating per-kernel event counts |
 
 **The key advantage over torch.profiler here:** the `cuda_gpu_kern_sum` kernel counts and durations are unaffected by any Python-level overhead, confirming that the `simt_sgemm` dominance seen in Exercise 4 is real and not a profiler artefact. This is the ground truth against which to calibrate Exercise 4's results.
