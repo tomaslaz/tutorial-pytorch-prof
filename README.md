@@ -36,12 +36,14 @@ srun -N 1 --gpus 1 bash -c "source ~/miniforge3/bin/activate && conda env create
 | 4 | `4_profile/` | torch.profiler | Capture a full CPU/CUDA timeline and analyse it with HTA and Perfetto UI |
 | 5 | `5_nsight/` | Nsight Systems | Profile with `nsys`, compare against torch.profiler, and explore system-level metrics |
 
-Work through each folder in order. Each folder contains:
+Each exercise is self-contained in its own directory. Work through each folder in order. Each folder contains:
 - `README.md` — exercise instructions and questions to consider
-- `train.py` — the training script
-- `answer.md` — worked answer and key takeaways or `analysis.ipynb` (guided notebook).
-- `solution` - folder containing the complete solution (e.g. `train_solution.py`, `sbatch_solution.sh`, `analysis.ipynb`)
+- `train.py` — the training script to modify
+- `launch.py` — multi-GPU launch script
 - `sbatch.sh` — job submission script
+- `solution/` — complete solution containing `train.py`, `launch.py`, `sbatch.sh`, and `answer.md`
+
+Exercise 4 also includes `.ipynb` files for guided profiler analysis, and its `solution/` is split into `part_a/` and `part_b/`.
 
 ## Extra
 
