@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=Torch_Distributed
+#SBATCH --job-name=Torch_nvidia-smi
 #SBATCH --nodes=1
 #SBATCH --gpus=1
 #SBATCH --time=00:10:00

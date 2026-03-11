@@ -6,7 +6,7 @@ Before reaching for a full profiler, the cheapest diagnostic is `nvidia-smi`. It
 
 Modify the job submission script from the previous exercise to add a background `nvidia-smi` process that logs GPU stats at 1-second intervals. Run the job and inspect the output.
 
-The script launches `nvidia-smi` as a background process and writes per-second GPU stats to a `.out` file alongside the Slurm output:
+The script launches `nvidia-smi` as a background process (the trailing `&`) and writes per-second GPU stats to a `.out` file alongside the Slurm output. Because the process runs in the background, it won't stop on its own when training finishes — that's why `kill $NVIDIA_SMI_PID` is needed at the end:
 
 ```bash
 srun --overlap --ntasks-per-node=1 \
@@ -19,6 +19,8 @@ srun ...  # training
 
 kill $NVIDIA_SMI_PID
 ```
+
+After the job completes, inspect the GPU log file (e.g. `Torch_nvidia-smi_<job_id>-mem-<node>.out`) to see the per-second GPU utilisation, memory usage, and power draw.
 
 Keep `train.py` and `launch.py` unchanged from the previous session.
 
@@ -34,4 +36,6 @@ sbatch sbatch.sh
 
 ---
 
-See [answer.md](answer.md) when you're ready.
+See [solution/answer.md](solution/answer.md) when you're ready.
+
+The full solution code is available in [solution/](solution/) when you're ready to compare your implementation.
