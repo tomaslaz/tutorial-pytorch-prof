@@ -25,7 +25,7 @@ The two tools are **complementary**: torch.profiler for Python-level attribution
 
 ### Step 1: The starter script
 
-The starter `train.py` is already in this directory. It is a stripped-down training loop (no MFU measurement, no warmup, no profiler context) using the `BATCH_SIZE=320` established as optimal in Exercise 3. Your task is to add NVTX annotations and update `sbatch.sh` to wrap it with `nsys profile`.
+The starter `train.py` is already in this directory. It is a stripped-down training loop (no MFU measurement, no warmup, no profiler context) using `BATCH_SIZE=320`, chosen in Exercise 3 as a balance between GPU utilisation (~50% MFU) and step time (~64 ms). Your task is to add NVTX annotations and update `sbatch.sh` to wrap it with `nsys profile`.
 
 ### Step 2: Modify `sbatch.sh`
 

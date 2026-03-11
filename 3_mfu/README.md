@@ -6,6 +6,8 @@
 MFU = achieved TFLOP/s / GPU peak TFLOP/s
 ```
 
+> **Terminology note:** *FLOPs* (floating point operations) is a count of arithmetic operations — no time dimension. *FLOP/s* (floating point operations per second, sometimes written FLOPS) is a rate. Peak GPU specs are quoted in FLOP/s; MFU compares your achieved FLOP/s against that peak.
+
 Well-optimised large-model training reaches 40–60% MFU for FP32. Below ~20% suggests a memory-bound or kernel-launch-overhead bottleneck.
 
 The starter `train.py` runs a basic distributed training loop but does **not** measure efficiency. Your task is to add MFU instrumentation.

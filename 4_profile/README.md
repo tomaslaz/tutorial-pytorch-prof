@@ -19,7 +19,7 @@ The script uses `schedule(wait=1, warmup=2, active=3, repeat=1)` so 6 steps mini
 
 The starter `train.py` already times training steps but does **not** capture a profiler trace. Your task is to add `torch.profiler` instrumentation.
 
-> **Note:** `BATCH_SIZE = 320` was chosen to maximise GPU utilisation.
+> **Note:** `BATCH_SIZE = 320` was chosen from the Exercise 3 MFU experiments as a balance between GPU utilisation (~50% MFU) and step time (~64 ms). `BATCH_SIZE = 3200` reaches higher MFU (~60%) but each step takes ~570 ms, making profiling slower to iterate on.
 
 Modify `train.py` to capture and export a profiler trace. Make the following changes:
 
