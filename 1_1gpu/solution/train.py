@@ -1,5 +1,4 @@
 import torch
-import torch.cuda.nvtx as nvtx
 import transformers
 from transformers import BertTokenizer, BertForSequenceClassification
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -11,7 +10,7 @@ transformers.utils.logging.set_verbosity_error()
 
 BACKEND = 'nccl'
 BATCH_SIZE = 32
-NUM_SAMPLES = 320  # Total number of samples to process
+NUM_SAMPLES = 64  # Total number of samples to process
 TRAINING_STEPS = NUM_SAMPLES // BATCH_SIZE
 DEVICE = f"cuda:{os.environ['LOCAL_RANK']}"
 
@@ -50,28 +49,13 @@ def benchmark():
     dist.barrier()
     start_time = time.time()
     
-    for step in range(TRAINING_STEPS):
-        nvtx.range_push(f"step_{step}")
-
-        nvtx.range_push("zero_grad")
+    for _ in range(TRAINING_STEPS):
         optimizer.zero_grad()
-        nvtx.range_pop()
-
-        nvtx.range_push("forward")
-        outputs = model(**inputs, labels=labels)
+        outputs = model(**inputs, labels=labels) # forward pass
         loss = outputs.loss
-        nvtx.range_pop()
-
-        nvtx.range_push("backward")
-        loss.backward()
-        nvtx.range_pop()
-
-        nvtx.range_push("optimizer")
+        loss.backward() # backward pass
         optimizer.step()
-        nvtx.range_pop()
-
-        nvtx.range_pop()
-
+    
     dist.barrier()
     end_time = time.time()
 

@@ -23,11 +23,11 @@ The two tools are **complementary**: torch.profiler for Python-level attribution
 
 ## How to profile with nsys
 
+Don't forget to start by moving into the Exercise 5 directory `5_nsight/`.
+
 ### Step 1: The starter script
 
-The starter `train.py` is already in this directory. It is a stripped-down training loop (no MFU measurement, no warmup, no profiler context) using the `BATCH_SIZE=320` established as optimal in Exercise 3. Your task is to add NVTX annotations and update `sbatch.sh` to wrap it with `nsys profile`.
-
-> **Note on batch size:** `train_solution.py` uses `BATCH_SIZE=32` to produce shorter, easier-to-read traces in the GUI. Use either — the kernel breakdown is the same; only step duration changes.
+The starter `train.py` is already in this directory. It is a stripped-down training loop (no MFU measurement, no warmup, no profiler context) using `BATCH_SIZE=320`, chosen in Exercise 3 as a balance between GPU utilisation (~50% MFU) and step time (~64 ms). Your task is to add NVTX annotations and update `sbatch.sh` to wrap it with `nsys profile`.
 
 ### Step 2: Modify `sbatch.sh`
 
@@ -47,7 +47,7 @@ srun -N 1 \
     --gpus=1 \
     --mpi=pmi2 \
     --ntasks-per-node=1 \
-    bash -c 'export WORLD_SIZE=$SLURM_GPUS; export RANK=$PMI_RANK; export LOCAL_RANK=$SLURM_LOCALID;
+    bash -c 'export WORLD_SIZE=$SLURM_GPUS; export RANK=$PMI_RANK; export LOCAL_RANK=$SLURM_LOCALID; \
              nsys profile \
                  --output ./nsight_output/rank_${PMI_RANK} \
                  --trace cuda,nvtx,osrt \
@@ -66,13 +66,16 @@ Key flags:
 
 ### Step 3: Add NVTX annotations to mark training phases
 
-Add `torch.cuda.nvtx` calls to `train.py` to label each step and its phases. This is a small code change that makes the timeline much easier to read — each range appears as a coloured bar above the kernel rows:
+**3a. Add the import** at the top of `train.py` alongside the other imports:
 
 ```python
 import torch.cuda.nvtx as nvtx
+```
 
-# inside the training loop:
-for step in range(TRAINING_STEPS):
+**3b. Replace the training loop** — change `for _ in range(NUM_STEPS):` to `for step in range(NUM_STEPS):` and wrap each phase with NVTX ranges:
+
+```python
+for step in range(NUM_STEPS):
     nvtx.range_push(f"step_{step}")
 
     nvtx.range_push("zero_grad")
@@ -95,7 +98,7 @@ for step in range(TRAINING_STEPS):
     nvtx.range_pop()  # step_N
 ```
 
-The `--trace cuda,nvtx` flag in Step 2 is already set to capture these ranges.
+Each range appears as a coloured bar above the kernel rows in the timeline. The `--trace cuda,nvtx` flag in Step 2 is already set to capture these ranges.
 
 ### Step 4: Execute the job
 
@@ -103,19 +106,22 @@ The `--trace cuda,nvtx` flag in Step 2 is already set to capture these ranges.
 sbatch sbatch.sh
 ```
 
-### Step 5: Copy results back
+### Step 5: Copy results back *(run on your local machine)*
 
 ```bash
 rsync -r <host>:~/<path>/5_nsight/nsight_output/ ./nsight_output/
 ```
 
-### Step 6: Open in the Nsight Systems GUI
+### Step 6: Open in the Nsight Systems GUI *(run on your local machine)*
 
-Download Nsight Systems from [developer.nvidia.com/nsight-systems](https://developer.nvidia.com/nsight-systems) and open the `.nsys-rep` file. To compare multiple ranks side by side: **File → Add Report**.
+Download Nsight Systems from [developer.nvidia.com/nsight-systems](https://developer.nvidia.com/nsight-systems) and open the `.nsys-rep` file.
 
-To generate a text summary on the command line without the GUI:
+To generate a text summary on the command line without the GUI, either on your local machine or on the HPC cluster (after loading the CUDA module):
 
 ```bash
+# On the HPC cluster:
+module load cuda/12.6
+cd <path>/5_nsight/nsight_output
 nsys stats rank_0.nsys-rep
 ```
 
@@ -146,7 +152,7 @@ Look at the **CUDA GPU Kernel Summary** (`cuda_gpu_kern_sum`) section and compar
 | Dominant kernels | `simt_sgemm`, `cutlass_80_simt_sgemm` | Confirms Exercise 4: FP32 GEMMs, Tensor Cores idle — no profiler artefact |
 | Step durations (steady-state) | ~575 ms at `BATCH_SIZE=320` | Should match Exercise 4's `span_ms` — validates that torch.profiler overhead was not distorting timings |
 | First step duration | Significantly longer | CUDA context init + first-step allocator warm-up — visible in nsys but hidden in Exercise 4 by the profiler `warmup` phase |
-| NVTX breakdown | `forward` ≈ 35%, `backward` ≈ 60%, `optimizer` small | Backward is ~2× forward, as expected; optimizer (Adam) overhead is negligible relative to compute |
+| NVTX breakdown | Compare relative time of `forward`, `backward`, and `optimizer` | How do the three phases compare? Is optimizer overhead negligible relative to compute? |
 | Kernel count vs Exercise 4 | Should match | If counts differ, Exercise 4's heavyweight flags (`profile_memory`, `with_stack`) were still inflating per-kernel event counts |
 
 **The key advantage over torch.profiler here:** the `cuda_gpu_kern_sum` kernel counts and durations are unaffected by any Python-level overhead, confirming that the `simt_sgemm` dominance seen in Exercise 4 is real and not a profiler artefact. This is the ground truth against which to calibrate Exercise 4's results.
@@ -159,3 +165,7 @@ Look at the **CUDA GPU Kernel Summary** (`cuda_gpu_kern_sum`) section and compar
 - [NVTX API](https://nvtx.readthedocs.io/en/latest/) — Python bindings for adding custom annotations.
 - [nsys stats reports](https://docs.nvidia.com/nsight-systems/UserGuide/index.html#cli-nsys-stats) — command-line summary reports without the GUI.
 - [PyTorch NVTX integration](https://pytorch.org/docs/stable/cuda.html#torch.cuda.nvtx.range_push) — `torch.cuda.nvtx` API docs.
+
+---
+
+The full solution code is available in [solution/](solution/) when you're ready to compare your implementation.

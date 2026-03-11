@@ -10,8 +10,7 @@ transformers.utils.logging.set_verbosity_error()
 
 BACKEND = 'nccl'
 BATCH_SIZE = 320
-NUM_SAMPLES = 3200  # Total number of samples to process
-TRAINING_STEPS = NUM_SAMPLES // BATCH_SIZE
+NUM_STEPS = 10
 DEVICE = f"cuda:{os.environ['LOCAL_RANK']}"
 
 def init_process(backend=BACKEND):
@@ -31,7 +30,7 @@ def benchmark():
     per_gpu_batch_size = BATCH_SIZE // world_size
 
     if dist.get_rank() == 0:
-        print(f"Running benchmark with world size: {world_size}, batch size: {BATCH_SIZE}, per GPU batch size: {per_gpu_batch_size}, training steps: {TRAINING_STEPS}")
+        print(f"Running benchmark with world size: {world_size}, batch size: {BATCH_SIZE}, per GPU batch size: {per_gpu_batch_size}, training steps: {NUM_STEPS}")
 
     model = BertForSequenceClassification.from_pretrained(model_name).to(DEVICE)
     model = DDP(model, device_ids=[local_rank])
@@ -49,7 +48,7 @@ def benchmark():
     dist.barrier()
     start_time = time.time()
     
-    for _ in range(TRAINING_STEPS):
+    for _ in range(NUM_STEPS):
         optimizer.zero_grad()
         outputs = model(**inputs, labels=labels) # forward pass
         loss = outputs.loss
@@ -60,7 +59,7 @@ def benchmark():
     end_time = time.time()
 
     if dist.get_rank() == 0:
-        print(f"Time taken for {TRAINING_STEPS} forward and backward pass(es) with BATCH_SIZE={BATCH_SIZE} on {world_size} workers: {end_time - start_time} seconds")
+        print(f"Time taken for {NUM_STEPS} forward and backward pass(es) with BATCH_SIZE={BATCH_SIZE} on {world_size} workers: {end_time - start_time} seconds")
 
 if __name__ == "__main__":
     init_process()

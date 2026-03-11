@@ -4,7 +4,7 @@
 
 > **Note:** Timings will vary depending on node load, NCCL initialisation, JIT compilation, etc. Expect minor variations (~10%) from the numbers shown here.
 
-| BATCH_SIZE | FLOPs/step (GFLOPs) | ms/step | Achieved (TFLOP/s) | MFU |
+| BATCH_SIZE | FLOPs/step (TFLOP) | ms/step | Achieved (TFLOPS) | MFU |
 |---|---|---|---|---|
 | 32 | 212.71 | 30.8 | 6.9 | 10.3% |
 | 320 | 2127.09 | 63.7 | 33.4 | 49.8% |
@@ -16,7 +16,7 @@
 - At `BATCH_SIZE=32`, each step takes only ~30 ms — far shorter than `nvidia-smi`'s 1-second polling interval. The GPU is actively computing, yet `nvidia-smi` reports ~0% utilisation because the work finishes between samples.
 - At `BATCH_SIZE=3200`, steps take ~570 ms so `nvidia-smi` catches them and reports 100% utilisation — but MFU is only 60%. The GPU looks "fully busy" while still leaving 40% of its arithmetic throughput unused.
 
-**Larger batches increase arithmetic intensity.** Each kernel has more work to amortise its launch overhead, and matrix multiplications get closer to their theoretical peak throughput. MFU rises from 10% -> 50% -> 60% as batch size grows 100 times.
+**Larger batches improve GPU utilisation in two ways.** First, *arithmetic intensity* — the ratio of compute work (FLOPs) to memory traffic (bytes read/written) — increases. The GPU spends more time on maths and less time waiting for data. Second, each CUDA kernel launch carries a small fixed overhead; with more work per kernel, that overhead is a smaller fraction of total time. Together, these effects push matrix multiplications closer to their theoretical peak throughput. MFU rises from 10% → 50% → 60% as batch size grows 100×.
 
 **60% FP32 MFU on GH200 is healthy.** Perfect efficiency is physically impossible. 40–60% is typical for well-tuned FP32 workloads.
 

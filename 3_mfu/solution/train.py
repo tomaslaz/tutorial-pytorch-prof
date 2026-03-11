@@ -1,5 +1,4 @@
 import torch
-import torch.profiler
 import transformers
 from transformers import BertTokenizer, BertForSequenceClassification
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -11,12 +10,10 @@ import os
 transformers.utils.logging.set_verbosity_error()
 
 BACKEND = 'nccl'
-BATCH_SIZE = 320
-NUM_STEPS = 10    # wait=1 + warmup=2 + active=3 = 6 minimum; 10 gives headroom
+BATCH_SIZE = 32
+NUM_STEPS = 10    # enough steps for stable timing
 WARMUP_STEPS = 2  # discarded before timing to avoid cold-start bias
 DEVICE = f"cuda:{os.environ['LOCAL_RANK']}"
-PROFILE_DIR_KERNELS = "./profiler_output_kernels"  # Run B: accurate kernel timings
-PROFILE_DIR_MEMORY  = "./profiler_output_memory"   # Run A: memory allocation timeline
 
 # Peak FP32 TFLOPS for GH200 120GB: ~67 TFLOPS (FP32)
 GPU_PEAK_TFLOPS = 67.0
@@ -80,40 +77,16 @@ def benchmark():
         outputs.loss.backward()
         optimizer.step()
 
-    schedule = torch.profiler.schedule(wait=1, warmup=2, active=3, repeat=1)
-
-    # ------------------------------------------------------------------
-    # Run A — kernel timing (profile_memory=False)
-    # All heavyweight flags off → accurate GPU kernel durations.
-    # Use this trace for notebook Sections 1, 2, 3b/3c, 4, and 5.
-    # MFU is computed from this run.
-    # ------------------------------------------------------------------
-    trace_dir = os.path.join(PROFILE_DIR_KERNELS, f"rank_{rank}")
-    os.makedirs(trace_dir, exist_ok=True)
-    on_trace_ready = torch.profiler.tensorboard_trace_handler(trace_dir) if rank == 0 else None
-
     torch.cuda.synchronize()
     dist.barrier()
     start_time = time.time()
 
-    with torch.profiler.profile(
-        activities=[
-            torch.profiler.ProfilerActivity.CPU,
-            torch.profiler.ProfilerActivity.CUDA,
-        ],
-        schedule=schedule,
-        on_trace_ready=on_trace_ready,
-        record_shapes=False,
-        with_stack=False,
-        profile_memory=False,  # accurate GPU kernel timings
-    ) as prof:
-        for _ in range(NUM_STEPS):
-            optimizer.zero_grad()
-            outputs = model(**inputs, labels=labels)
-            loss = outputs.loss
-            loss.backward()
-            optimizer.step()
-            prof.step()
+    for _ in range(NUM_STEPS):
+        optimizer.zero_grad()
+        outputs = model(**inputs, labels=labels)
+        loss = outputs.loss
+        loss.backward()
+        optimizer.step()
 
     torch.cuda.synchronize()
     dist.barrier()
@@ -127,42 +100,9 @@ def benchmark():
     if dist.get_rank() == 0:
         print(f"\nTotal time for {NUM_STEPS} steps:  {elapsed:.3f} s  ({time_per_step * 1000:.1f} ms/step)")
         print(f"Achieved throughput:            {achieved_tflops:.3f} TFLOPS")
+        print(f"FLOPs/step:                     {flops_per_step / 1e09:.3f} TFLOP")
         print(f"GPU peak FP32:                  {GPU_PEAK_TFLOPS:.1f} TFLOPS")
         print(f"MFU:                            {mfu:.1f}%")
-        print()
-        print(prof.key_averages().table(sort_by="cuda_time_total", row_limit=10))
-        print(f"Kernel trace: {PROFILE_DIR_KERNELS}")
-
-    # ------------------------------------------------------------------
-    # Run B — memory analysis (profile_memory=True)
-    # Captures allocator events for notebook Section 3a.
-    # GPU kernel timings in this trace are inflated — do not use for MFU.
-    # ------------------------------------------------------------------
-    trace_dir = os.path.join(PROFILE_DIR_MEMORY, f"rank_{rank}")
-    os.makedirs(trace_dir, exist_ok=True)
-    on_trace_ready = torch.profiler.tensorboard_trace_handler(trace_dir) if rank == 0 else None
-
-    with torch.profiler.profile(
-        activities=[
-            torch.profiler.ProfilerActivity.CPU,
-            torch.profiler.ProfilerActivity.CUDA,
-        ],
-        schedule=schedule,
-        on_trace_ready=on_trace_ready,
-        record_shapes=False,
-        with_stack=False,
-        profile_memory=True,  # enables Section 3a memory allocation timeline
-    ) as prof:
-        for _ in range(NUM_STEPS):
-            optimizer.zero_grad()
-            outputs = model(**inputs, labels=labels)
-            loss = outputs.loss
-            loss.backward()
-            optimizer.step()
-            prof.step()
-
-    if dist.get_rank() == 0:
-        print(f"Memory trace:  {PROFILE_DIR_MEMORY}")
 
 
 if __name__ == "__main__":

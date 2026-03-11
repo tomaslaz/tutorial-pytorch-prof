@@ -10,10 +10,19 @@ Repository with hands-on exercises of the Introduction to PyTorch Profiling tuto
 
 ## Prerequisites
 
+To install the latest version of Conda navigate to your home directory and run the following commands:
+
+```bash
+cd $HOME
+curl --location --remote-name "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
+bash Miniforge3-$(uname)-$(uname -m).sh
+rm Miniforge3-$(uname)-$(uname -m).sh
+```
+
 Set up the conda environment:
 
 ```bash
-srun -N 1 --gpus 1 --pty conda env create -f pytorch_conda_env.yaml -y
+srun -N 1 --gpus 1 bash -c "source ~/miniforge3/bin/activate && conda env create -f pytorch_conda_env.yaml -y"
 ```
 
 ## Exercises
@@ -27,13 +36,14 @@ srun -N 1 --gpus 1 --pty conda env create -f pytorch_conda_env.yaml -y
 | 4 | `4_profile/` | torch.profiler | Capture a full CPU/CUDA timeline and analyse it with HTA and Perfetto UI |
 | 5 | `5_nsight/` | Nsight Systems | Profile with `nsys`, compare against torch.profiler, and explore system-level metrics |
 
-Work through each folder in order. Each folder contains:
+Each exercise is self-contained in its own directory. Work through each folder in order. Each folder contains:
 - `README.md` — exercise instructions and questions to consider
-- `train.py` — the training script
-- `answer.md` — worked answer and key takeaways
+- `train.py` — the training script to modify
+- `launch.py` — multi-GPU launch script
 - `sbatch.sh` — job submission script
+- `solution/` — complete solution containing `train.py`, `launch.py`, `sbatch.sh`, and `answer.md`
 
-Some folders also include `train_solution.py` (complete solution), `sbatch_solution.sh` (solution job script), or `analysis.ipynb` (guided notebook for trace analysis).
+Exercise 4 also includes `.ipynb` files for guided profiler analysis, and its `solution/` is split into `part_a/` and `part_b/`.
 
 ## Extra
 

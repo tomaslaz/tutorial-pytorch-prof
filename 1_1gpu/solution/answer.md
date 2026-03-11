@@ -21,7 +21,7 @@ The times are nearly identical — and that is the point.
 
 ## Key takeaways
 
-**Same total work, same time.** `TRAINING_STEPS=2` is fixed and the global `BATCH_SIZE=32` is split across GPUs. Each GPU in the 8-GPU run does 1/8th the arithmetic, so there is very little to speed up. Adding more GPUs only added overhead (NCCL init, all-reduce) without reducing total compute.
+**Same total work, same time.** `TRAINING_STEPS=2` is fixed and the global `BATCH_SIZE=32` is split across GPUs, as we can see from the `per_gpu_batch_size` variable on line 31 of [train.py](train.py). Each GPU in the 8-GPU run does 1/8th the arithmetic, so there is very little to speed up. Adding more GPUs only added overhead (NCCL init, all-reduce) without reducing total compute.
 
 **Scaling only helps if the GPU is the bottleneck.** The computation finishes in under 1 second either way. The ~40 seconds of wall time visible in the job log is Python startup, model loading, and tokeniser init, all CPU-bound and not affected by GPU count.
 
@@ -29,4 +29,4 @@ The times are nearly identical — and that is the point.
 
 ---
 
-The job submission script containing the solution is available as [`sbatch_solution.sh`](sbatch_solution.sh).
+The full solution code is available in the current folder when you're ready to compare your implementation.

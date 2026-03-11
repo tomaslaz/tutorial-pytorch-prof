@@ -28,4 +28,4 @@ The GPU is at 0% for ~33 seconds, then memory jumps from 1 MiB to 3707 MiB as th
 
 ---
 
-The job submission script containing the solution is available as [`sbatch_solution.sh`](sbatch_solution.sh).
+The full solution code is available in the current folder when you're ready to compare your implementation.

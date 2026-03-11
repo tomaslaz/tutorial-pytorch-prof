@@ -6,11 +6,15 @@
 MFU = achieved TFLOP/s / GPU peak TFLOP/s
 ```
 
+> **Terminology note:** *FLOPs* (floating point operations) is a count of arithmetic operations — no time dimension. *FLOP/s* (floating point operations per second, sometimes written FLOPS) is a rate. Peak GPU specs are quoted in FLOP/s; MFU compares your achieved FLOP/s against that peak.
+
 Well-optimised large-model training reaches 40–60% MFU for FP32. Below ~20% suggests a memory-bound or kernel-launch-overhead bottleneck.
 
 The starter `train.py` runs a basic distributed training loop but does **not** measure efficiency. Your task is to add MFU instrumentation.
 
 ## Task
+
+Don't forget to start by moving into the Exercise 3 directory `3_mfu/`.
 
 Modify `train.py` to compute and print MFU. Make the following changes:
 
@@ -19,11 +23,19 @@ Modify `train.py` to compute and print MFU. Make the following changes:
 from torch.utils.flop_counter import FlopCounterMode
 ```
 
-**2. Replace the constants block** — swap the sample-count approach for explicit step counts and add the GPU peak FLOP/s for your hardware:
+**2. Extend the constants block** — add constants for the sample-count approach for explicit step counts and add the GPU peak FLOP/s for your hardware:
 ```python
+# NUM_SAMPLES = 64  # Total number of samples to process  ← delete
+# TRAINING_STEPS = NUM_SAMPLES // BATCH_SIZE               ← delete
 NUM_STEPS = 10       # steps to time
 WARMUP_STEPS = 2     # discarded to avoid cold-start bias
 GPU_PEAK_TFLOPS = 67.0   # GH200 FP32; adjust for your GPU
+```
+
+Also update the print inside `benchmark()` to use `NUM_STEPS`:
+```python
+if dist.get_rank() == 0:
+    print(f"Running benchmark with world size: {world_size}, batch size: {BATCH_SIZE}, per GPU batch size: {per_gpu_batch_size}, training steps: {NUM_STEPS}")
 ```
 
 **3. Add a FLOP-counting helper** before `benchmark()`:
@@ -73,8 +85,9 @@ achieved_tflops = flops_per_step / time_per_step / 1e12
 mfu = achieved_tflops / GPU_PEAK_TFLOPS * 100
 
 if dist.get_rank() == 0:
-    print(f"Total time for {NUM_STEPS} steps:  {elapsed:.3f} s  ({time_per_step * 1000:.1f} ms/step)")
+    print(f"\nTotal time for {NUM_STEPS} steps:  {elapsed:.3f} s  ({time_per_step * 1000:.1f} ms/step)")
     print(f"Achieved throughput:            {achieved_tflops:.3f} TFLOPS")
+    print(f"FLOPs/step:                     {flops_per_step / 1e09:.3f} TFLOP")
     print(f"GPU peak FP32:                  {GPU_PEAK_TFLOPS:.1f} TFLOPS")
     print(f"MFU:                            {mfu:.1f}%")
 ```
@@ -102,4 +115,6 @@ sbatch sbatch.sh
 
 ---
 
-See [answer.md](answer.md) when you're ready.
+See [solution/answer.md](solution/answer.md) when you're ready.
+
+The full solution code is available in [solution/](solution/) when you're ready to compare your implementation.

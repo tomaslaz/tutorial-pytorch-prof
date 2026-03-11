@@ -4,6 +4,8 @@ In the previous session you ran BERT fine-tuning across 2 nodes x 4 GPUs and mea
 
 ## Task
 
+Don't forget to start by moving into the Exercise 1 directory `1_1gpu/`.
+
 Modify `sbatch.sh` to request only 1 GPU, then submit the job:
 
 Make the following changes from the 8-GPU script:
@@ -29,4 +31,6 @@ sbatch sbatch.sh
 
 ---
 
-See [answer.md](answer.md) when you're ready.
+See [solution/answer.md](solution/answer.md) when you're ready.
+
+The full solution code is available in [solution/](solution/) when you're ready to compare your implementation.

@@ -1,4 +1,5 @@
 import torch
+import torch.cuda.nvtx as nvtx
 import transformers
 from transformers import BertTokenizer, BertForSequenceClassification
 from torch.nn.parallel import DistributedDataParallel as DDP
@@ -48,18 +49,30 @@ def benchmark():
     dist.barrier()
     start_time = time.time()
     
-    for _ in range(NUM_STEPS):
+    for step in range(NUM_STEPS):
+        nvtx.range_push(f"step_{step}")
+
+        nvtx.range_push("zero_grad")
         optimizer.zero_grad()
-        outputs = model(**inputs, labels=labels) # forward pass
+        nvtx.range_pop()
+
+        nvtx.range_push("forward")
+        outputs = model(**inputs, labels=labels)
         loss = outputs.loss
-        loss.backward() # backward pass
+        nvtx.range_pop()
+
+        nvtx.range_push("backward")
+        loss.backward()
+        nvtx.range_pop()
+
+        nvtx.range_push("optimizer")
         optimizer.step()
-    
+        nvtx.range_pop()
+
+        nvtx.range_pop()
+
     dist.barrier()
     end_time = time.time()
-
-    elapsed = end_time - start_time
-    time_per_step = elapsed / NUM_STEPS
 
     if dist.get_rank() == 0:
         print(f"Time taken for {NUM_STEPS} forward and backward pass(es) with BATCH_SIZE={BATCH_SIZE} on {world_size} workers: {end_time - start_time} seconds")
