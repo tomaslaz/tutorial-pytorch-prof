@@ -19,7 +19,7 @@ Modify `train.py` to compute and print MFU. Make the following changes:
 from torch.utils.flop_counter import FlopCounterMode
 ```
 
-**2. Replace the constants block** — swap the sample-count approach for explicit step counts and add the GPU peak FLOP/s for your hardware:
+**2. Extend the constants block** — add constants for the sample-count approach for explicit step counts and add the GPU peak FLOP/s for your hardware:
 ```python
 # NUM_SAMPLES = 64  # Total number of samples to process  ← delete
 # TRAINING_STEPS = NUM_SAMPLES // BATCH_SIZE               ← delete
