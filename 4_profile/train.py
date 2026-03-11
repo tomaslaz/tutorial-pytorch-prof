@@ -58,6 +58,9 @@ def benchmark():
     dist.barrier()
     end_time = time.time()
 
+    elapsed = end_time - start_time
+    time_per_step = elapsed / NUM_STEPS
+
     if dist.get_rank() == 0:
         print(f"Time taken for {NUM_STEPS} forward and backward pass(es) with BATCH_SIZE={BATCH_SIZE} on {world_size} workers: {end_time - start_time} seconds")
 

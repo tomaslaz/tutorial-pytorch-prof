@@ -4,7 +4,7 @@
 
 > **Note:** Timings will vary depending on node load, NCCL initialisation, JIT compilation, etc. Expect minor variations (~10%) from the numbers shown here.
 
-| BATCH_SIZE | FLOPs/step (GFLOPs) | ms/step | Achieved (TFLOP/s) | MFU |
+| BATCH_SIZE | FLOPs/step (TFLOP) | ms/step | Achieved (TFLOPS) | MFU |
 |---|---|---|---|---|
 | 32 | 212.71 | 30.8 | 6.9 | 10.3% |
 | 320 | 2127.09 | 63.7 | 33.4 | 49.8% |
