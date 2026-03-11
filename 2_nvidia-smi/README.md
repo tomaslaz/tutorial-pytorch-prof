@@ -4,6 +4,8 @@ Before reaching for a full profiler, the cheapest diagnostic is `nvidia-smi`. It
 
 ## Task
 
+Don't forget to start by moving into the Exercise 2 directory `2_nvidia-smi/`.
+
 Modify the job submission script from the previous exercise to add a background `nvidia-smi` process that logs GPU stats at 1-second intervals. Run the job and inspect the output.
 
 The script launches `nvidia-smi` as a background process (the trailing `&`) and writes per-second GPU stats to a `.out` file alongside the Slurm output. Because the process runs in the background, it won't stop on its own when training finishes — that's why `kill $NVIDIA_SMI_PID` is needed at the end:

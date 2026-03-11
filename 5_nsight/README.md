@@ -23,6 +23,8 @@ The two tools are **complementary**: torch.profiler for Python-level attribution
 
 ## How to profile with nsys
 
+Don't forget to start by moving into the Exercise 5 directory `5_nsight/`.
+
 ### Step 1: The starter script
 
 The starter `train.py` is already in this directory. It is a stripped-down training loop (no MFU measurement, no warmup, no profiler context) using `BATCH_SIZE=320`, chosen in Exercise 3 as a balance between GPU utilisation (~50% MFU) and step time (~64 ms). Your task is to add NVTX annotations and update `sbatch.sh` to wrap it with `nsys profile`.

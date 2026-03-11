@@ -14,6 +14,8 @@ The starter `train.py` runs a basic distributed training loop but does **not** m
 
 ## Task
 
+Don't forget to start by moving into the Exercise 3 directory `3_mfu/`.
+
 Modify `train.py` to compute and print MFU. Make the following changes:
 
 **1. Add the import**

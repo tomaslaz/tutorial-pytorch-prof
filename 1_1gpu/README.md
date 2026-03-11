@@ -4,7 +4,7 @@ In the previous session you ran BERT fine-tuning across 2 nodes x 4 GPUs and mea
 
 ## Task
 
-Don't forget to move into the `1_1gpu` directory on Isambard-AI before completing this task.
+Don't forget to start by moving into the Exercise 1 directory `1_1gpu/`.
 
 Modify `sbatch.sh` to request only 1 GPU, then submit the job:
 

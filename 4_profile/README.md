@@ -17,9 +17,11 @@ The script uses `schedule(wait=1, warmup=2, active=3, repeat=1)` so 6 steps mini
 
 ## Task
 
+Don't forget to start by moving into the Exercise 4 directory `4_profile/`.
+
 The starter `train.py` already times training steps but does **not** capture a profiler trace. Your task is to add `torch.profiler` instrumentation.
 
-> **Note:** `BATCH_SIZE = 320` was chosen from the Exercise 3 MFU experiments as a balance between GPU utilisation (~50% MFU) and step time (~64 ms). `BATCH_SIZE = 3200` reaches higher MFU (~60%) but each step takes ~570 ms, making profiling slower to iterate on.
+> **Note:** `BATCH_SIZE = 320` was chosen from the Exercise 3 MFU experiments as a balance between GPU utilisation (~50% MFU). `BATCH_SIZE = 3200` reaches higher MFU (~60%) but each step takes about ten times longer.
 
 Modify `train.py` to capture and export a profiler trace. Make the following changes:
 
@@ -89,8 +91,11 @@ dist.barrier()
 
 This ensures all GPU work is complete before `end_time` is recorded, for the same reason as above.
 
-**5. Print the top kernels** after the timing block:
+**5. Estimate the time per step and print the top kernels** after the timing block:
 ```python
+elapsed = end_time - start_time
+time_per_step = elapsed / NUM_STEPS
+
 if dist.get_rank() == 0:
     print(f"\nTotal time for {NUM_STEPS} steps:  {elapsed:.3f} s  ({time_per_step * 1000:.1f} ms/step)")
     print()
