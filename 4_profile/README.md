@@ -125,7 +125,7 @@ The job writes traces to `profiler_output_kernels/rank_0/`. Copy them back to yo
 rsync -r <host>:~/<path>/4_profile/profiler_output_kernels ./
 ```
 
-### set up an isolated environment with uv
+### Set up an isolated environment with uv
 
 ```bash
 # Install uv (if not already installed)
@@ -191,6 +191,8 @@ After running the notebook against the Run A (kernel) trace you should see:
 **The single highest-impact optimisation available:** switch to BF16 (`model.to(torch.bfloat16)`). The profiler confirms that every major GEMM is running `simt_sgemm` (FP32 on scalar CUDA cores) rather than a Tensor Core kernel (`tensorop_` / `ampere_`). BF16 activates Tensor Cores and is expected to roughly double throughput.
 
 ---
+
+Once you a refinished with the analysis using the `analysis.ipynb` notebook, move on to Part B to analyse memory allocation patterns.
 
 ## Part B: Memory allocation analysis
 
