@@ -45,7 +45,7 @@ def benchmark():
     per_gpu_batch_size = BATCH_SIZE // world_size
 
     if dist.get_rank() == 0:
-        print(f"Running benchmark with world size: {world_size}, batch size: {BATCH_SIZE}, per GPU batch size: {per_gpu_batch_size}, training steps: {TRAINING_STEPS}")
+        print(f"Running benchmark with world size: {world_size}, batch size: {BATCH_SIZE}, per GPU batch size: {per_gpu_batch_size}, training steps: {NUM_STEPS}")
 
     model = BertForSequenceClassification.from_pretrained(model_name).to(DEVICE)
     model = DDP(model, device_ids=[local_rank])

@@ -21,9 +21,17 @@ from torch.utils.flop_counter import FlopCounterMode
 
 **2. Replace the constants block** — swap the sample-count approach for explicit step counts and add the GPU peak FLOP/s for your hardware:
 ```python
+# NUM_SAMPLES = 64  # Total number of samples to process  ← delete
+# TRAINING_STEPS = NUM_SAMPLES // BATCH_SIZE               ← delete
 NUM_STEPS = 10       # steps to time
 WARMUP_STEPS = 2     # discarded to avoid cold-start bias
 GPU_PEAK_TFLOPS = 67.0   # GH200 FP32; adjust for your GPU
+```
+
+Also update the print inside `benchmark()` to use `NUM_STEPS`:
+```python
+if dist.get_rank() == 0:
+    print(f"Running benchmark with world size: {world_size}, batch size: {BATCH_SIZE}, per GPU batch size: {per_gpu_batch_size}, training steps: {NUM_STEPS}")
 ```
 
 **3. Add a FLOP-counting helper** before `benchmark()`:
@@ -102,4 +110,6 @@ sbatch sbatch.sh
 
 ---
 
-See [answer.md](answer.md) when you're ready.
+See [solution/answer.md](solution/answer.md) when you're ready.
+
+The full solution code is available in [solution/](solution/) when you're ready to compare your implementation.
