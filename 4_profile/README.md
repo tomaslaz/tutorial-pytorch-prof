@@ -238,3 +238,7 @@ rsync -r <host>:~/<path>/4_profile/profiler_output_memory ./
 - [Holistic Trace Analysis (HTA)](https://github.com/facebookresearch/HolisticTraceAnalysis) — programmatic analysis library for PyTorch profiler traces; replaces most TensorBoard views.
 - https://docs.pytorch.org/tutorials/beginner/hta_intro_tutorial.html
 - [Perfetto UI](https://ui.perfetto.dev) — interactive trace viewer; open `.pt.trace.json` files directly in the browser.
+
+---
+
+The full solution code is available in [solution/](solution/) when you're ready to compare your implementation.
