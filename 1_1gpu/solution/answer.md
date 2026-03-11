@@ -29,4 +29,4 @@ The times are nearly identical — and that is the point.
 
 ---
 
-The job submission script containing the solution is available as [`sbatch_solution.sh`](sbatch_solution.sh).
+The full solution code is available in the current folder when you're ready to compare your implementation.

@@ -39,10 +39,9 @@ srun -N 1 --gpus 1 bash -c "source ~/miniforge3/bin/activate && conda env create
 Work through each folder in order. Each folder contains:
 - `README.md` — exercise instructions and questions to consider
 - `train.py` — the training script
-- `answer.md` — worked answer and key takeaways
+- `answer.md` — worked answer and key takeaways or `analysis.ipynb` (guided notebook).
+- `solution` - folder containing the complete solution (e.g. `train_solution.py`, `sbatch_solution.sh`, `analysis.ipynb`)
 - `sbatch.sh` — job submission script
-
-Some folders also include `train_solution.py` (complete solution), `sbatch_solution.sh` (solution job script), or `analysis.ipynb` (guided notebook for trace analysis).
 
 ## Extra
 

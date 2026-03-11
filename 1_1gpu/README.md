@@ -29,4 +29,6 @@ sbatch sbatch.sh
 
 ---
 
-See [answer.md](answer.md) when you're ready.
+See [solution/answer.md](solution/answer.md) when you're ready.
+
+The full solution code is available in [solution/](solution/) when you're ready to compare your implementation.
