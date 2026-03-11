@@ -100,6 +100,7 @@ def benchmark():
     if dist.get_rank() == 0:
         print(f"\nTotal time for {NUM_STEPS} steps:  {elapsed:.3f} s  ({time_per_step * 1000:.1f} ms/step)")
         print(f"Achieved throughput:            {achieved_tflops:.3f} TFLOPS")
+        print(f"FLOPs/step:                     {flops_per_step / 1e09:.3f} TFLOP")
         print(f"GPU peak FP32:                  {GPU_PEAK_TFLOPS:.1f} TFLOPS")
         print(f"MFU:                            {mfu:.1f}%")
 
