@@ -19,6 +19,14 @@ bash Miniforge3-$(uname)-$(uname -m).sh
 rm Miniforge3-$(uname)-$(uname -m).sh
 ```
 
+Git clone this repository and navigate to the tutorial directory:
+
+```bash
+cd $HOME
+git clone https://github.com/tomaslaz/tutorial-pytorch-prof.git
+cd tutorial-pytorch-prof
+```
+
 Set up the conda environment:
 
 ```bash
