@@ -4,7 +4,7 @@
 #SBATCH --gpus=1
 #SBATCH --time=00:10:00
 #SBATCH --ntasks-per-node=1
-#SBATCH --reservation=<reservation_name>
+#SBATCH --reservation=Turing_Workshop
 
 module load brics/nccl brics/aws-ofi-nccl
 module load cuda/12.6
