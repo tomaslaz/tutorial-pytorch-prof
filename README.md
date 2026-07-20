@@ -30,7 +30,7 @@ cd tutorial-pytorch-prof
 Set up the conda environment:
 
 ```bash
-srun -N 1 --gpus 1 bash -c "source ~/miniforge3/bin/activate && conda env create -f pytorch_conda_env.yaml -y"
+srun -N 1 --gpus 1 --reservation=Turing_Workshop bash -c "source ~/miniforge3/bin/activate && conda env create -f pytorch_conda_env.yaml -y"
 ```
 
 ## Exercises

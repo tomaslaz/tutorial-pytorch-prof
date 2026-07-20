@@ -4,7 +4,7 @@
 #SBATCH --gpus=8
 #SBATCH --time=00:10:00
 #SBATCH --ntasks-per-node=4
-#SBATCH --reservation=<reservation_name>
+#SBATCH --reservation=Turing_Workshop
 
 module load brics/nccl brics/aws-ofi-nccl
 source $HOME/miniforge3/etc/profile.d/conda.sh
