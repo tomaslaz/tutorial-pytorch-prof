@@ -4,7 +4,7 @@ Repository with hands-on exercises of the Introduction to PyTorch Profiling tuto
 
 ## Coordinates
 
-* Date: 12 May 2026
+* Date: 21 July 2026
 * Occasion: BriCS-Turing Isambard-AI Workshop
 * Location: British Library, London
 
@@ -70,3 +70,7 @@ rsync -r pytorch_prof_tutorial/ <host>:~/<path>/pytorch_prof_tutorial/
 # pull from cluster
 rsync -r <host>:~/<path>/pytorch_prof_tutorial/ ./pytorch_prof_tutorial/
 ```
+
+## Slides
+
+The slides for the tutorial can be found in the `slides/` directory.

@@ -188,12 +188,14 @@ After running the notebook against the Run A (kernel) trace you should see:
 
 | Finding | Value | Interpretation |
 |---|---|---|
-| `idle_time_pctg` | ~0.7% | CPU is keeping the GPU fully fed — not a bottleneck |
-| `compute_time_pctg` | ~99.2% | Almost all GPU time is spent on compute — no NCCL or D2D copy overhead |
-| Dominant kernels | `simt_sgemm`, `cutlass_80_simt_sgemm` | **FP32 GEMMs on regular CUDA cores — Tensor Cores are completely idle** |
-| `gpu_util_pct` per step | ~99.3% (consistent) | Stable, well-pipelined training; no stalls or JIT warm-up artifacts |
+| `idle_time_pctg` | ~4.6% | CPU is keeping the GPU mostly fed — idle time is almost entirely `kernel_wait` (back-to-back launch gaps), not `host_wait`, so this is not a CPU bottleneck |
+| `compute_time_pctg` | ~94.9% | Almost all GPU time is spent on compute — no NCCL overhead, ~0.5% on D2D memcpy |
+| Dominant kernels | `sm80_xmma_gemm_f32f32..._ffma_..._cublas`, `cutlass_80_simt_sgemm` | **FP32 GEMMs on regular CUDA cores — Tensor Cores are completely idle** |
+| `gpu_util_pct` per step | ~95–97% (consistent) | Stable, well-pipelined training; no stalls or JIT warm-up artifacts |
 
-**The single highest-impact optimisation available:** switch to BF16 (`model.to(torch.bfloat16)`). The profiler confirms that every major GEMM is running `simt_sgemm` (FP32 on scalar CUDA cores) rather than a Tensor Core kernel (`tensorop_` / `ampere_`). BF16 activates Tensor Cores and is expected to roughly double throughput.
+**The single highest-impact optimisation available:** switch to BF16 (`model.to(torch.bfloat16)`). The profiler confirms that every major GEMM is running on regular CUDA cores (FP32 `_ffma_` kernels) rather than Tensor Cores. BF16 activates Tensor Cores and is expected to roughly double throughput.
+
+> **Note on kernel names:** don't classify by the `xmma` substring alone — it's just a cuBLAS/cutlass kernel-family prefix and appears in both CUDA-core and Tensor Core kernels. Check the instruction suffix instead: `_ffma_` (as in `sm80_xmma_gemm_f32f32_f32f32_f32_..._ffma_..._cublas`, the largest kernel in this trace) means regular FP32 CUDA cores; `_hmma_`/`_imma_`/`tensorop` means Tensor Cores are active.
 
 ---
 
@@ -233,7 +235,7 @@ rsync -r <host>:~/<path>/4_profile/profiler_output_memory ./
 
 | Finding | Value | Interpretation |
 |---|---|---|
-| Peak allocated memory | ~29.3 GB | Significant headroom remains before OOM on the GH200 (96 GB HBM) |
+| Peak allocated memory | ~4.4 GB | Significant headroom remains before OOM on the GH200 (96 GB HBM) |
 
 ---
 

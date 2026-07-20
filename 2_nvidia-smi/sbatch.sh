@@ -4,6 +4,7 @@
 #SBATCH --gpus=1
 #SBATCH --time=00:10:00
 #SBATCH --ntasks-per-node=1
+#SBATCH --reservation=<reservation_name>
 
 module load brics/nccl brics/aws-ofi-nccl
 source $HOME/miniforge3/etc/profile.d/conda.sh

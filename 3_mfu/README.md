@@ -8,7 +8,7 @@ MFU = achieved TFLOP/s / GPU peak TFLOP/s
 
 > **Terminology note:** *FLOPs* (floating point operations) is a count of arithmetic operations — no time dimension. *FLOP/s* (floating point operations per second, sometimes written FLOPS) is a rate. Peak GPU specs are quoted in FLOP/s; MFU compares your achieved FLOP/s against that peak.
 
-Well-optimised large-model training reaches 40–60% MFU for FP32. Below ~20% suggests a memory-bound or kernel-launch-overhead bottleneck.
+Well-optimised large-model training reaches 40–60% MFU for FP16/FP32. Below ~20% suggests a memory-bound or kernel-launch-overhead bottleneck.
 
 The starter `train.py` runs a basic distributed training loop but does **not** measure efficiency. Your task is to add MFU instrumentation.
 
@@ -112,6 +112,30 @@ sbatch sbatch.sh
 - Why does a larger batch size improve GPU efficiency?
 - At `BATCH_SIZE=32`, the GPU may show high utilisation in `nvidia-smi` yet low MFU — how is that possible?
 - Is there a point of diminishing returns?
+
+## Bonus: enabling TF32 Tensor Cores
+
+The runs above use true FP32 matmul — on PyTorch, `torch.backends.cuda.matmul.allow_tf32` defaults to `False`, so `GPU_PEAK_TFLOPS=67.0` (FP32 CUDA cores) is the right reference. GH200/Hopper GPUs can instead run matmuls through TF32 Tensor Cores, trading a little precision for much higher throughput.
+
+Add this single line near the top of `train.py`, right after the imports:
+
+```python
+torch.set_float32_matmul_precision("high")  # allow TF32 for matmul ops
+```
+
+Then update the peak-FLOPs reference so MFU is computed against the right ceiling:
+
+```python
+GPU_PEAK_TFLOPS = 494.7   # GH200 TF32 Tensor Core (dense), not FP32 CUDA cores
+```
+
+Re-run all three batch sizes (32 / 320 / 3200) with this change and compare against your FP32 results.
+
+### Bonus questions
+
+- Does step time drop with TF32 enabled? By roughly how much?
+- Does MFU go up, down, or stay about the same relative to the FP32 run?
+- If MFU doesn't rise much even though step time drops, what does that tell you about where the bottleneck was?
 
 ---
 
