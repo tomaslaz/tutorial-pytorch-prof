@@ -8,8 +8,7 @@
 
 module load brics/nccl brics/aws-ofi-nccl
 module load cuda/12.6
-source $HOME/miniforge3/etc/profile.d/conda.sh
-conda activate pytorch_env
+source $HOME/tutorial-pytorch-prof/.venv/bin/activate
 
 export MASTER_ADDR=$(scontrol show hostname $SLURM_NODELIST | head -n 1) # e.g. nid001038
 export MASTER_PORT=29600

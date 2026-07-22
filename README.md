@@ -10,13 +10,11 @@ Repository with hands-on exercises of the Introduction to PyTorch Profiling tuto
 
 ## Prerequisites
 
-To install the latest version of Conda navigate to your home directory and run the following commands:
+To install the latest version of uv navigate to your home directory and run the following commands:
 
 ```bash
 cd $HOME
-curl --location --remote-name "https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-$(uname)-$(uname -m).sh"
-bash Miniforge3-$(uname)-$(uname -m).sh
-rm Miniforge3-$(uname)-$(uname -m).sh
+curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
 Git clone this repository and navigate to the tutorial directory:
@@ -27,10 +25,10 @@ git clone https://github.com/tomaslaz/tutorial-pytorch-prof.git
 cd tutorial-pytorch-prof
 ```
 
-Set up the conda environment:
+Set up the environment:
 
 ```bash
-srun -N 1 --gpus 1 --reservation=Turing_Workshop bash -c "source ~/miniforge3/bin/activate && conda env create -f pytorch_conda_env.yaml -y"
+srun -N 1 --gpus 1 --reservation=Turing_Workshop bash -c "uv sync"
 ```
 
 ## Exercises

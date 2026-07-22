@@ -18,7 +18,7 @@ The GPU is at 0% for ~33 seconds, then memory jumps from 1 MiB to 3707 MiB as th
 
 ## Key takeaways
 
-**Wall time ≠ compute time.** The job ran for ~40 s but the GPU computed for under 1 s. The other ~39 s were Python startup, conda env activation, tokeniser init, and model loading — all CPU-bound.
+**Wall time ≠ compute time.** The job ran for ~40 s but the GPU computed for under 1 s. The other ~39 s were Python startup, virtual env activation, tokeniser init, and model loading — all CPU-bound.
 
 **`nvidia-smi` at 1 s resolution is too coarse for short workloads.** It is useful for sustained underutilisation (e.g. data-loading bottlenecks in long training runs) but cannot resolve sub-second bursts.
 
