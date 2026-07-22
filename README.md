@@ -31,6 +31,8 @@ Set up the environment:
 srun -N 1 --gpus 1 --reservation=Turing_Workshop bash -c "uv sync"
 ```
 
+> Note: this downloads PyTorch's CUDA build and can take a while (potentially 10+ minutes) — be patient.
+
 ## Exercises
 
 | # | Folder | Topic | Goal |
